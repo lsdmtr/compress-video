@@ -58,7 +58,7 @@ npm run desktop
 
 打包前更新 Defender 病毒库并扫描完整目录，检测失败或无法扫描时终止；ZIP 带逐文件校验清单。若构建机器已配置代码签名证书，可设置 `FRAMEFOLD_SIGN_THUMBPRINT`（证书存储区指纹，且 signtool 在 PATH）对主程序签名。没有证书时生成未签名测试包，不伪造签名。新程序即使签名仍可能出现 SmartScreen 信誉提示，不能保证零误报。
 
-按用户要求不使用 GitHub Actions；在 Windows 本机执行构建命令生成便携 ZIP，可运行 `pwsh -File scripts/test-portable.ps1` 检查解压启动。当前只有 macOS 验证，**尚未生成或实测 Windows ZIP，也未执行 Windows Defender 扫描**。正式交付还需在干净 Windows 10/11 标准用户、无系统 WebView2、断网及中文路径场景验收，并配置有效的发布者签名。固定运行库需要随应用版本更新安全补丁。
+按用户要求不使用 GitHub Actions；在 Windows 本机执行构建命令生成便携 ZIP，可运行 `pwsh -File scripts/test-portable.ps1` 检查解压启动。已在 Mac 本地交叉编译生成 Windows x64 Release ZIP，并验证程序架构、系统 DLL 依赖与 ZIP 完整性；**尚未在 Windows 真机运行，也未执行 Windows Defender 扫描**。正式交付还需在干净 Windows 10/11 标准用户、无系统 WebView2、断网及中文路径场景验收，并配置有效的发布者签名。固定运行库需要随应用版本更新安全补丁。
 
 ## 在 Mac 本地生成 Windows 测试包
 

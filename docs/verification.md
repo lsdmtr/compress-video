@@ -60,3 +60,11 @@ Windows PowerShell 打包、数字签名、Defender 扫描及干净 Windows 离�
 本次便携修订后：前端 9 项测试、Rust 8 项测试、前端生产构建、Clippy 均通过；打包脚本布局人工复核通过。Windows 专用代码和脚本仍需 Windows 执行验证。
 
 按用户要求移除 GitHub Actions workflow，保留 Windows 本机构建及便携启动检查脚本。此前远端构建未生成可交付 ZIP。
+
+## 本地 Windows Release 包
+
+2026-09-14：使用本机 cargo-xwin 0.23.1 + LLVM/LLD 23.1.1 完成 Windows x64 MSVC Release 交叉编译。修复 Tauri 的静态 VCRuntime/动态 UCRT 设置与 cargo-xwin 完全静态 CRT 的冲突；本地交叉构建设置 STATIC_VCRUNTIME=false，由 cargo-xwin 和目标 crt-static 配置负责链接。
+
+产物：release/FrameFold-0.1.0-windows-x64-portable.zip，473689768 字节。主程序 9.1 MiB，PE machine AMD64，Windows GUI subsystem；导入表仅包含 Windows 系统 DLL，没有额外 VC++ Redistributable 或 WebView2Loader DLL 依赖。包内含 FFmpeg、微软固定 WebView2、许可证、构建说明和 SHA-256 清单。ZIP CRC 与哈希检查通过。
+
+应用源码构建提交：1dbaefb。这是本地 Release 测试包，未签名，未执行 Windows Defender 扫描和 Windows 真机启动验收。远端构建已取消，workflow 已移除。
