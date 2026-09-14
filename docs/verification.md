@@ -58,3 +58,5 @@ WebView2 153.0.4234.32 x64 CAB 从微软官方页面链接下载，在本机测�
 Windows PowerShell 打包、数字签名、Defender 扫描及干净 Windows 离线启动尚未在本机执行，不能将脚本配置等同于这些验收通过。此前安装包相关记录为历史方案。
 
 本次便携修订后：前端 9 项测试、Rust 8 项测试、前端生产构建、Clippy 均通过；打包脚本布局人工复核通过。Windows 专用代码和脚本仍需 Windows 执行验证。
+
+按用户要求移除 GitHub Actions workflow，保留 Windows 本机构建及便携启动检查脚本。此前远端构建未生成可交付 ZIP。
