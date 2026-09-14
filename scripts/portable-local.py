@@ -9,7 +9,7 @@ import sys
 import zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-RUNTIME = json.loads((ROOT / 'scripts/windows-runtime.json').read_text())
+
 
 
 def digest(file):
@@ -18,34 +18,6 @@ def digest(file):
         for chunk in iter(lambda: stream.read(1024 * 1024), b''):
             result.update(chunk)
     return result.hexdigest()
-
-
-def prepare():
-    cache = ROOT / '.cache/webview2'
-    cache.mkdir(parents=True, exist_ok=True)
-    archive = cache / 'runtime.cab'
-    if not archive.exists() or digest(archive) != RUNTIME['sha256']:
-        partial = cache / 'runtime.download'
-        subprocess.run(['curl', '--fail', '--location', '--retry', '2', '--max-time', '600',
-                        '--output', str(partial), RUNTIME['url']], check=True)
-        if digest(partial) != RUNTIME['sha256']:
-            raise RuntimeError('Microsoft WebView2 SHA-256 mismatch')
-        partial.replace(archive)
-    unpack = cache / 'unpacked'
-    if unpack.exists():
-        shutil.rmtree(unpack)
-    unpack.mkdir()
-    subprocess.run(['cabextract', '-q', '-d', str(unpack), str(archive)], check=True)
-    executables = list(unpack.rglob('msedgewebview2.exe'))
-    if len(executables) != 1:
-        raise RuntimeError('Unexpected WebView2 archive layout')
-    destination = ROOT / 'src-tauri/WebView2Runtime'
-    if destination.exists():
-        shutil.rmtree(destination)
-    shutil.copytree(executables[0].parent, destination)
-    (destination / 'FRAMEFOLD-SOURCE.txt').write_text(json.dumps(RUNTIME, indent=2) + '\n')
-    shutil.rmtree(unpack)
-    print('Bundled Microsoft runtime archive hash verified.')
 
 
 def verify_pe(file):
@@ -61,24 +33,27 @@ def verify_pe(file):
 
 def package():
     version = json.loads((ROOT / 'package.json').read_text())['version']
-    name = f'FrameFold-{version}-windows-x64-portable'
+    name = f'FrameFold-{version}-windows-x64-lite'
     output = ROOT / 'release'
     stage = output / name
     if stage.exists():
         shutil.rmtree(stage)
     (stage / 'binaries').mkdir(parents=True)
     shutil.copy2(ROOT / 'src-tauri/target/x86_64-pc-windows-msvc/release/framefold.exe', stage / 'FrameFold.exe')
-    for file in ['ffmpeg.exe', 'ffprobe.exe', 'FFMPEG-LICENSE.txt', 'FFMPEG-README.txt', 'FFMPEG-SOURCE.txt']:
+    dlls = sorted(file.name for file in (ROOT / 'src-tauri/binaries').glob('*.dll'))
+    if not dlls:
+        raise RuntimeError('Missing shared FFmpeg libraries; run npm run prepare:windows')
+    for file in ['ffmpeg.exe', 'ffprobe.exe', 'FFMPEG-LICENSE.txt', 'FFMPEG-README.txt', 'FFMPEG-SOURCE.txt', *dlls]:
         shutil.copy2(ROOT / 'src-tauri/binaries' / file, stage / 'binaries' / file)
-    shutil.copytree(ROOT / 'src-tauri/WebView2Runtime', stage / 'WebView2Runtime')
     shutil.copy2(ROOT / 'docs/portable-readme.txt', stage / 'README.txt')
     for executable in [stage / 'FrameFold.exe', stage / 'binaries/ffmpeg.exe',
-                       stage / 'binaries/ffprobe.exe', stage / 'WebView2Runtime/msedgewebview2.exe']:
+                       stage / 'binaries/ffprobe.exe', *[stage / 'binaries' / file for file in dlls]]:
         verify_pe(executable)
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     (stage / 'BUILD-INFO.txt').write_text(
         f'FrameFold {version}\nGit commit: {revision}\nProfile: Release, Windows x64 MSVC\n'
         'Built locally on macOS using cargo-xwin. Application is unsigned.\n'
+        'Requires the Microsoft WebView2 Runtime already installed on the computer.\n'
         'Windows Defender scanning and native Windows startup were NOT performed.\n'
         'For tester evaluation; report any security warning without disabling protection.\n', encoding='utf-8')
     files = sorted(file for file in stage.rglob('*') if file.is_file())
@@ -100,4 +75,4 @@ def package():
 
 
 if __name__ == '__main__':
-    {'prepare': prepare, 'package': package}[sys.argv[1]]()
+    {'package': package}[sys.argv[1]]()

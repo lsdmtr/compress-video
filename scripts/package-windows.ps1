@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $root = Split-Path $PSScriptRoot -Parent
 $version = (Get-Content (Join-Path $root 'package.json') -Raw | ConvertFrom-Json).version
-$name = "FrameFold-$version-windows-x64-portable"
+$name = "FrameFold-$version-windows-x64-lite"
 $release = Join-Path $root 'release'
 $stage = Join-Path $release $name
 $zip = Join-Path $release "$name.zip"
@@ -13,10 +13,11 @@ if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
 New-Item -ItemType Directory -Force $stage | Out-Null
 Copy-Item (Join-Path $root 'src-tauri/target/x86_64-pc-windows-msvc/release/framefold.exe') (Join-Path $stage 'FrameFold.exe')
 New-Item -ItemType Directory (Join-Path $stage 'binaries') | Out-Null
-foreach ($file in @('ffmpeg.exe', 'ffprobe.exe', 'FFMPEG-LICENSE.txt', 'FFMPEG-README.txt', 'FFMPEG-SOURCE.txt')) {
+$dlls = @(Get-ChildItem (Join-Path $root 'src-tauri/binaries') -Filter '*.dll' -File | ForEach-Object { $_.Name })
+if ($dlls.Count -eq 0) { throw 'Shared FFmpeg libraries are missing' }
+foreach ($file in (@('ffmpeg.exe', 'ffprobe.exe', 'FFMPEG-LICENSE.txt', 'FFMPEG-README.txt', 'FFMPEG-SOURCE.txt') + $dlls)) {
     Copy-Item (Join-Path $root "src-tauri/binaries/$file") (Join-Path $stage "binaries/$file")
 }
-Copy-Item -Recurse (Join-Path $root 'src-tauri/WebView2Runtime') (Join-Path $stage 'WebView2Runtime')
 Copy-Item (Join-Path $root 'docs/portable-readme.txt') (Join-Path $stage 'README.txt')
 # Optional signing uses an existing certificate in the build machine's store.
 # Never rewrite or strip the publisher signatures of bundled dependencies.

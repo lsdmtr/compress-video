@@ -46,26 +46,28 @@ npm run desktop
 
 `npm run dev` 仅提供浏览器界面预览，**不能压缩视频，也不会模拟处理结果**。桌面启动命令会自动启动前端，请先停止单独运行的同端口开发服务。
 
-## Windows 便携 ZIP
+## Windows 轻量便携 ZIP
 
-在 **Windows x64** 开发环境运行 `npm ci` 和 `npm run build:windows`。
-输出为 `release/FrameFold-0.1.0-windows-x64-portable.zip` 及 SHA-256 校验文件。
-用户完整解压到本机可写文件夹后，双击 `FrameFold.exe` 即可；这是应用程序，不是安装器。
+软件只处理已有视频，不提供录屏功能。轻量版使用系统已有的 Microsoft Edge WebView2 Runtime；缺少时显示原生提示，不静默下载或安装。
 
-包内包含 FFmpeg 和微软固定版 WebView2，无需安装运行库或管理员权限，视频处理可离线进行。随包运行库会增加包体积；设置和缓存仍保存在当前用户应用数据目录。Windows 10 的沙箱兼容权限仅授予包内 WebView2Runtime 目录读取/执行权限，参见 [微软部署文档](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution#the-fixed-version-runtime-distribution-mode)。不支持从网络共享路径运行。
+完整解压 `release/FrameFold-0.1.0-windows-x64-lite.zip`，双击 `FrameFold.exe`。保留 `binaries` 内所有 DLL。包内使用固定版本 FFmpeg 8.0.1 共享构建，让 ffmpeg 与 ffprobe 共用一套媒体库；保留 H.264/HEVC、HDR、多音轨等已有能力，不携带播放器和开发 SDK。
 
-构建流程固定 FFmpeg/WebView2 版本并校验 SHA-256，验证 WebView2 的微软数字签名；Windows 使用静态 C 运行库。仅打包明确列出的主程序、依赖、说明和许可证，不使用自解压、加壳、混淆或脚本启动器，不注册服务、开机启动或 Defender 排除项。
+Windows 本机构建：
 
-打包前更新 Defender 病毒库并扫描完整目录，检测失败或无法扫描时终止；ZIP 带逐文件校验清单。若构建机器已配置代码签名证书，可设置 `FRAMEFOLD_SIGN_THUMBPRINT`（证书存储区指纹，且 signtool 在 PATH）对主程序签名。没有证书时生成未签名测试包，不伪造签名。新程序即使签名仍可能出现 SmartScreen 信誉提示，不能保证零误报。
+```powershell
+npm ci
+npm run build:windows
+pwsh -File scripts/test-portable.ps1
+```
 
-按用户要求不使用 GitHub Actions；在 Windows 本机执行构建命令生成便携 ZIP，可运行 `pwsh -File scripts/test-portable.ps1` 检查解压启动。已在 Mac 本地交叉编译生成 Windows x64 Release ZIP，并验证程序架构、系统 DLL 依赖与 ZIP 完整性；**尚未在 Windows 真机运行，也未执行 Windows Defender 扫描**。正式交付还需在干净 Windows 10/11 标准用户、无系统 WebView2、断网及中文路径场景验收，并配置有效的发布者签名。固定运行库需要随应用版本更新安全补丁。
+Windows 打包前更新 Defender 病毒库并扫描，失败则停止。可通过 `FRAMEFOLD_SIGN_THUMBPRINT` 使用构建机器证书存储区中的证书签名（signtool 需在 PATH）。没有证书时不伪造签名；新发布程序仍可能出现 SmartScreen 信誉提示。
 
-## 在 Mac 本地生成 Windows 测试包
+## Mac 本地交叉编译
 
-不使用远端构建。在 Mac 安装 LLVM、LLD、cabextract 和 cargo-xwin，并添加 Rust Windows 目标：
+不使用 GitHub Actions 或远端构建。首次准备：
 
 ```sh
-brew install llvm lld cabextract
+brew install llvm lld
 rustup target add x86_64-pc-windows-msvc
 python3 -m venv .cache/cross-tools
 .cache/cross-tools/bin/pip install --index-url https://pypi.org/simple cargo-xwin==0.23.1
@@ -73,7 +75,7 @@ npm ci
 npm run build:windows:mac
 ```
 
-编译与 ZIP 组装全部在本机执行。脚本只下载编译依赖，固定运行库版本及哈希；输出包含 `BUILD-INFO.txt`、逐文件和 ZIP 的 SHA-256 校验。Mac 构建包是未签名的 Windows Release 测试包，不能在 Mac 上执行 Windows Defender 或 Windows 原生启动验收；这些检查没有被标成通过。Windows 本机构建命令仍保留签名及 Defender 检查。
+编译与 ZIP 组装全部在本机执行，仅下载构建依赖。固定 FFmpeg 发行归档通过发布者 SHA-256 校验；产物包含 `BUILD-INFO.txt` 和 SHA-256 清单。Mac 生成的是未签名 Windows Release 测试包，未执行 Windows Defender 扫描与 Windows 真机启动验收。
 
 ## 验证
 

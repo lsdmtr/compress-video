@@ -98,35 +98,36 @@ mod desktop {
         result.map(|_| ()).map_err(|e| e.to_string())
     }
     pub fn run() {
-        // Fixed WebView2 v120+ requires AppContainer read/execute access on
-        // Windows 10. Keep the sandbox enabled and restrict the grant to our
-        // bundled runtime, following Microsoft's distribution documentation.
         #[cfg(windows)]
-        {
-            use std::os::windows::process::CommandExt;
-            let executable = std::env::current_exe().expect("无法定位应用程序");
-            let runtime = executable.parent().unwrap().join("WebView2Runtime");
-            if runtime.join("msedgewebview2.exe").is_file() {
-                let icacls = std::path::PathBuf::from(
-                    std::env::var_os("SystemRoot").expect("缺少 Windows 系统目录"),
-                )
-                .join("System32/icacls.exe");
-                let status = std::process::Command::new(icacls)
-                    .arg(&runtime)
-                    .args([
-                        "/grant",
-                        "*S-1-15-2-2:(OI)(CI)(RX)",
-                        "*S-1-15-2-1:(OI)(CI)(RX)",
-                        "/Q",
-                    ])
-                    .creation_flags(0x08000000)
-                    .status()
-                    .expect("无法设置 WebView2 沙箱读取权限");
-                assert!(
-                    status.success(),
-                    "请将完整软件包解压到当前用户可写的本地文件夹"
+        if tauri::webview_version().is_err() {
+            // This dialog works even when no WebView can be created. Never
+            // download or install a runtime silently on the user's computer.
+            #[link(name = "user32")]
+            extern "system" {
+                fn MessageBoxW(
+                    window: *mut std::ffi::c_void,
+                    text: *const u16,
+                    caption: *const u16,
+                    flags: u32,
+                ) -> i32;
+            }
+            let message: Vec<u16> = "轻量版需要 Microsoft Edge WebView2 运行库。\n\n请从微软官网下载并安装 WebView2 Runtime，然后重新打开程序。\nhttps://developer.microsoft.com/microsoft-edge/webview2/\n\n程序未自动安装任何组件。"
+                .encode_utf16().chain(std::iter::once(0)).collect();
+            let caption: Vec<u16> = "酱菇婆专用视频压缩"
+                .encode_utf16()
+                .chain(std::iter::once(0))
+                .collect();
+            // SAFETY: Both buffers are NUL-terminated and remain alive for the
+            // synchronous call. A null HWND requests an unowned dialog.
+            unsafe {
+                MessageBoxW(
+                    std::ptr::null_mut(),
+                    message.as_ptr(),
+                    caption.as_ptr(),
+                    0x30,
                 );
             }
+            return;
         }
         tauri::Builder::default()
             .plugin(tauri_plugin_dialog::init())

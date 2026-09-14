@@ -68,3 +68,9 @@ Windows PowerShell 打包、数字签名、Defender 扫描及干净 Windows 离�
 产物：release/FrameFold-0.1.0-windows-x64-portable.zip，473689768 字节。主程序 9.1 MiB，PE machine AMD64，Windows GUI subsystem；导入表仅包含 Windows 系统 DLL，没有额外 VC++ Redistributable 或 WebView2Loader DLL 依赖。包内含 FFmpeg、微软固定 WebView2、许可证、构建说明和 SHA-256 清单。ZIP CRC 与哈希检查通过。
 
 应用源码构建提交：1dbaefb。这是本地 Release 测试包，未签名，未执行 Windows Defender 扫描和 Windows 真机启动验收。远端构建已取消，workflow 已移除。
+
+## 轻量版修订
+
+按用户要求切换为系统 WebView2，移除固定运行库打包及启动时 ACL 修改。缺少运行库时使用原生 MessageBox 提示。FFmpeg/ffprobe 切换为 Gyan 8.0.1 共享构建，发行 ZIP SHA-256 为 e4a40b46e3a3f3e5f2ed28352bd1fd6c733ae3808a8743682ef7f0d4e20c7d51，与发布者元数据一致。共用 7 个媒体 DLL，不携带 ffplay 或开发文件；原有输入格式与压缩能力保留。软件从未提供录屏功能，只处理已有录制文件。
+
+本地 Windows x64 Release 编译通过，媒体核心 8 项测试通过。共享引擎 EXE/DLL 导入表核对：依赖仅为包内的媒体 DLL 和 Windows 系统 DLL，没有遗漏的外部 DLL。Windows 运行与 Defender 扫描仍未验证。

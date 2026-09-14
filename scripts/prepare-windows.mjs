@@ -16,9 +16,9 @@ import path from "node:path";
 
 // Immutable release asset; SHA-256 from the publisher's GitHub release API.
 const release = "8.0.1";
-const filename = `ffmpeg-${release}-full_build.zip`;
+const filename = `ffmpeg-${release}-full_build-shared.zip`;
 const sha256 =
-  "467cde100a47ed4b03a897988aeb4a296890c1e2b2d2864204657d002bc5fb90";
+  "e4a40b46e3a3f3e5f2ed28352bd1fd6c733ae3808a8743682ef7f0d4e20c7d51";
 const url = `https://github.com/GyanD/codexffmpeg/releases/download/${release}/${filename}`;
 const root = fileURLToPath(new URL("../", import.meta.url));
 const cache = path.join(root, ".cache", "windows-ffmpeg");
@@ -92,9 +92,15 @@ if (extract.error || extract.status !== 0)
   throw new Error(
     `Unable to extract FFmpeg: ${extract.error?.message ?? extract.status}`,
   );
-const source = path.join(unpack, `ffmpeg-${release}-full_build`);
+const source = path.join(unpack, `ffmpeg-${release}-full_build-shared`);
 await mkdir(destination, { recursive: true });
-for (const binary of ["ffmpeg.exe", "ffprobe.exe"])
+// Keep both CLI tools and the publisher's shared libraries; omit ffplay and SDK files.
+const dlls = (await readdir(path.join(source, "bin"))).filter(name => name.endsWith(".dll"));
+if (!dlls.length) throw new Error("Shared FFmpeg libraries are missing");
+for (const name of await readdir(destination)) {
+  if (name.endsWith(".dll")) await rm(path.join(destination, name));
+}
+for (const binary of ["ffmpeg.exe", "ffprobe.exe", ...dlls])
   await copyFile(
     path.join(source, "bin", binary),
     path.join(destination, binary),
@@ -113,7 +119,7 @@ if (readme)
   );
 await writeFile(
   path.join(destination, "FFMPEG-SOURCE.txt"),
-  `FFmpeg ${release}, full Windows build by Gyan Doshi\nBinary release: ${url}\nArchive SHA-256: ${sha256}\nFFmpeg source: https://ffmpeg.org/releases/ffmpeg-${release}.tar.xz\nBuild configuration and dependency information: https://www.gyan.dev/ffmpeg/builds/\nThe bundled GPL FFmpeg executables run as separate processes. See FFMPEG-LICENSE.txt and publisher README.\nBefore public redistribution, provide the corresponding source for this exact build and its GPL dependencies as required by their licenses. A link alone is not a complete redistribution package.\n`,
+  `FFmpeg ${release}, shared Windows build by Gyan Doshi\nBinary release: ${url}\nArchive SHA-256: ${sha256}\nFFmpeg source: https://ffmpeg.org/releases/ffmpeg-${release}.tar.xz\nBuild configuration and dependency information: https://www.gyan.dev/ffmpeg/builds/\nThe bundled GPL FFmpeg executables run as separate processes. See FFMPEG-LICENSE.txt and publisher README.\nBefore public redistribution, provide the corresponding source for this exact build and its GPL dependencies as required by their licenses. A link alone is not a complete redistribution package.\n`,
 );
 if (process.platform === "win32") {
   const ffmpeg = path.join(destination, "ffmpeg.exe");

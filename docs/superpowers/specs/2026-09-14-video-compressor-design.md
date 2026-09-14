@@ -6,7 +6,7 @@
 
 面向 Windows 10/11 x64，提供中文、本地离线的批量视频压缩工具。重点兼容 NVIDIA App / ShadowPlay 和 OBS 录制的视频；用户所说的“适配 N 卡”指录屏输入兼容性，并非要求 NVIDIA 硬件加速。尽量保留可感知画质，输出普通 MP4 文件。2K 在本项目定义为 2560×1440。
 
-推荐 Tauri 2 + React + TypeScript + Rust + FFmpeg/ffprobe。React 负责界面；Rust 负责输入校验、文件操作、任务调度和子进程生命周期；FFmpeg 负责实际编解码。Windows 便携 ZIP 携带固定版本 FFmpeg/ffprobe 和 WebView2 运行库，不提供安装器。解压后直接运行，不要求安装运行库。最终 ZIP 体积以实测为准，不能用纯 Tauri 空壳大小代表含 FFmpeg 的成品。
+推荐 Tauri 2 + React + TypeScript + Rust + FFmpeg/ffprobe。React 负责界面；Rust 负责输入校验、文件操作、任务调度和子进程生命周期；FFmpeg 负责实际编解码。Windows 轻量便携 ZIP 携带固定版本 FFmpeg/ffprobe 及共享 DLL，不提供安装器。使用系统已有 WebView2，缺少时提示用户安装，不静默安装。最终 ZIP 体积以实测为准，不能用纯 Tauri 空壳大小代表含 FFmpeg 的成品。
 
 备选：WPF/.NET 适合纯 Windows 原生应用，但界面实现方式与当前 macOS 开发环境不匹配；Electron 的 Web 环境更统一，但自带 Chromium 的基础开销更大。本项目选型是对界面开发、资源占用和可验证性的权衡，不宣称存在所有维度都最优的框架。转码速度主要由编码器、参数、显卡和视频决定。
 
