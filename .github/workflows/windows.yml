@@ -19,6 +19,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
+          cache-on-failure: true
       - run: npm ci
       - run: npm test
       - run: npm run prepare:windows
@@ -27,9 +28,14 @@ jobs:
         run: |
           $env:VIDEO_COMPRESS_FFMPEG = "$PWD\src-tauri\binaries\ffmpeg.exe"
           $env:VIDEO_COMPRESS_FFPROBE = "$PWD\src-tauri\binaries\ffprobe.exe"
-          cargo test --manifest-path src-tauri/Cargo.toml --locked
-          cargo test --manifest-path src-tauri/Cargo.toml --locked --test real_media -- --ignored --test-threads=1
+          cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --locked
+          if ($LASTEXITCODE -ne 0) { throw 'Engine tests failed' }
+          cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --locked --test real_media -- --ignored --test-threads=1
+          if ($LASTEXITCODE -ne 0) { throw 'Real media tests failed' }
       - run: npm run build:windows
+      - name: Verify portable startup from Chinese path
+        shell: pwsh
+        run: ./scripts/test-portable.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: FrameFold-Windows-x64
