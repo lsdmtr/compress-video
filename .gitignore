@@ -1,0 +1,30 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/target-core/
+src-tauri/gen/
+src-tauri/binaries/*
+!src-tauri/binaries/.gitkeep
+.cache/
+.superpowers/
+.DS_Store
+*.log
+test-results/
+src-tauri/WebView2Runtime/
+release/
+
+# Local settings, credentials and signing material
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.key
+*.pem
+.vscode/
+.idea/
+*.swp
+*.swo
+coverage/
+# Generated design explorations (keep implemented UI screenshots)
+docs/design/concept*.png

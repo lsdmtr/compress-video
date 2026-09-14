@@ -1,0 +1,3 @@
+Built-in imagegen mode, ui-mockup.
+Final edit prompt:
+Edit this entire FrameFold desktop app mockup to LIGHT theme per user correction. Preserve exact layout, all Chinese text, icon metaphors, controls, proportions and spacing. Replace dark backdrop with pale cool gray #eceef2 (NOT pure white). Panels slightly lighter #f5f6f8, input surfaces #e8ebf1, borders #d8dce5. Main text dark slate #282d3d, muted text #747b8d. Accent buttons and selected controls muted indigo violet #7564cc; subtle pale lavender selected backgrounds where appropriate. No white #ffffff anywhere except button text, no gradients, no textures, no dark mode remnants. Premium calm airy productivity app with enough contrast to read clearly, polished thin lines. Output full landscape app screenshot.

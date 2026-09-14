@@ -1,0 +1,14 @@
+{
+  "bundle": {
+    "active": false,
+    "icon": [
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "fixedRuntime",
+        "path": "WebView2Runtime"
+      }
+    }
+  }
+}

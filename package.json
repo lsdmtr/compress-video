@@ -1,0 +1,39 @@
+{
+  "name": "framefold",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": "^24.0.0"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 1420 --strictPort",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "tauri": "tauri",
+    "desktop": "tauri dev",
+    "test:engine": "cargo test --manifest-path src-tauri/Cargo.toml",
+    "prepare:windows": "node scripts/prepare-windows.mjs",
+    "build:windows": "npm run prepare:windows && powershell -NoProfile -File scripts/prepare-webview.ps1 && tauri build --target x86_64-pc-windows-msvc --no-bundle --config src-tauri/tauri.windows.conf.json && powershell -NoProfile -File scripts/package-windows.ps1"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.8.0",
+    "@tauri-apps/plugin-dialog": "^2.4.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.8.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "jsdom": "^29.1.1",
+    "prettier": "^3.9.6",
+    "typescript": "~5.8.3",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.0"
+  }
+}
