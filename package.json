@@ -14,7 +14,8 @@
     "desktop": "tauri dev",
     "test:engine": "cargo test --manifest-path src-tauri/Cargo.toml",
     "prepare:windows": "node scripts/prepare-windows.mjs",
-    "build:windows": "npm run prepare:windows && powershell -NoProfile -File scripts/prepare-webview.ps1 && tauri build --target x86_64-pc-windows-msvc --no-bundle --config src-tauri/tauri.portable.conf.json && powershell -NoProfile -File scripts/package-windows.ps1"
+    "build:windows": "npm run prepare:windows && powershell -NoProfile -File scripts/prepare-webview.ps1 && tauri build --target x86_64-pc-windows-msvc --no-bundle --config src-tauri/tauri.portable.conf.json && powershell -NoProfile -File scripts/package-windows.ps1",
+    "build:windows:mac": "bash scripts/build-windows-local.sh"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.8.0",

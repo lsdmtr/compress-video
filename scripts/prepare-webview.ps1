@@ -1,9 +1,10 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $root = Split-Path $PSScriptRoot -Parent
-$version = '153.0.4234.32'
-$url = "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/c3d95bc1-a0a7-4ca6-aaa1-fa0ac3dd1a37/Microsoft.WebView2.FixedVersionRuntime.$version.x64.cab"
-$expected = '2cb653a74426f0aa802c2396775c6bc674fd662d5396bd677f47bfa6e12eba9c'
+$runtime = Get-Content (Join-Path $PSScriptRoot 'windows-runtime.json') -Raw | ConvertFrom-Json
+$version = $runtime.version
+$url = $runtime.url
+$expected = $runtime.sha256
 $cache = Join-Path $root '.cache/webview2'
 $cab = Join-Path $cache 'runtime.cab'
 $destination = Join-Path $root 'src-tauri/WebView2Runtime'

@@ -60,6 +60,21 @@ npm run desktop
 
 按用户要求不使用 GitHub Actions；在 Windows 本机执行构建命令生成便携 ZIP，可运行 `pwsh -File scripts/test-portable.ps1` 检查解压启动。当前只有 macOS 验证，**尚未生成或实测 Windows ZIP，也未执行 Windows Defender 扫描**。正式交付还需在干净 Windows 10/11 标准用户、无系统 WebView2、断网及中文路径场景验收，并配置有效的发布者签名。固定运行库需要随应用版本更新安全补丁。
 
+## 在 Mac 本地生成 Windows 测试包
+
+不使用远端构建。在 Mac 安装 LLVM、LLD、cabextract 和 cargo-xwin，并添加 Rust Windows 目标：
+
+```sh
+brew install llvm lld cabextract
+rustup target add x86_64-pc-windows-msvc
+python3 -m venv .cache/cross-tools
+.cache/cross-tools/bin/pip install --index-url https://pypi.org/simple cargo-xwin==0.23.1
+npm ci
+npm run build:windows:mac
+```
+
+编译与 ZIP 组装全部在本机执行。脚本只下载编译依赖，固定运行库版本及哈希；输出包含 `BUILD-INFO.txt`、逐文件和 ZIP 的 SHA-256 校验。Mac 构建包是未签名的 Windows Release 测试包，不能在 Mac 上执行 Windows Defender 或 Windows 原生启动验收；这些检查没有被标成通过。Windows 本机构建命令仍保留签名及 Defender 检查。
+
 ## 验证
 
 ```sh

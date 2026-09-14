@@ -28,3 +28,6 @@ release/
 coverage/
 # Generated design explorations (keep implemented UI screenshots)
 docs/design/concept*.png
+
+__pycache__/
+*.pyc
