@@ -1,4 +1,4 @@
-FrameFold 视频压缩 · Windows x64 便携版
+酱菇婆专用视频压缩 · Windows x64 便携版
 
 将整个 ZIP 解压到本机可写文件夹，双击 FrameFold.exe。
 无需安装，不需要管理员权限，不要只复制主程序或直接在压缩包内运行。

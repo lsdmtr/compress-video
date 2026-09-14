@@ -27,10 +27,9 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <a className="brand" href="#" aria-label="FrameFold 首页">
+        <a className="brand" href="#" aria-label="酱菇婆专用视频压缩 首页">
           <Copy size={29} strokeWidth={1.7} />
-          <strong>FrameFold</strong>
-          <span>视频压缩</span>
+          <strong>酱菇婆专用视频压缩</strong>
         </a>
         <div className="header-actions">
           <span className="local-status">
@@ -144,7 +143,7 @@ export default function App() {
       </main>
       <footer>
         <span>
-          FrameFold <b>v0.1.0</b>
+          酱菇婆专用视频压缩 <b>v0.1.0</b>
         </span>
         <span>
           本地离线 <i>·</i> 隐私优先
